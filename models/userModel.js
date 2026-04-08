@@ -6,10 +6,10 @@ async function getAll() {
   return rows;
 }
 
-async function create({ name, email, password }) {
+async function create({ name, email, password, role = 'user' }) {
   const [result] = await pool.query(
-    'INSERT INTO users (name, email, password) VALUES (?, ?, ?)',
-    [name, email, password]
+    'INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)',
+    [name, email, password, role]
   );
   return result;
 }
