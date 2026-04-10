@@ -1,3 +1,53 @@
+/**
+ * @swagger
+ * tags:
+ *   name: System
+ *   description: Rotas de status e diagnóstico
+ */
+
+/**
+ * @swagger
+ * /status:
+ *   get:
+ *     summary: Verificar status do servidor
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Servidor rodando com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Servidor rodando com sucesso!
+ */
+
+/**
+ * @swagger
+ * /db-test:
+ *   get:
+ *     summary: Testar conexão com banco de dados MySQL
+ *     tags: [System]
+ *     responses:
+ *       200:
+ *         description: Conexão bem-sucedida
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 db:
+ *                   type: string
+ *                   example: ok
+ *                 message:
+ *                   type: string
+ *                   example: Conexão com MySQL bem-sucedida
+ *       500:
+ *         description: Falha na conexão com o banco
+ */
+
 // server.js
 require('dotenv').config();
 const express = require('express');
