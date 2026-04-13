@@ -4,10 +4,18 @@ const router = express.Router();
 
 const usersRouter = require('./users');
 const authRouter = require('./auth');
+const productsRouter = require('./products');
+const clientsRouter = require('./clients');
+const suppliersRouter = require('./suppliers');
+const stockRouter = require('./stock');
 
 // rotas agrupadas
 router.use('/users', usersRouter);
 router.use('/auth', authRouter);
+router.use('/products', productsRouter);
+router.use('/clients', clientsRouter);
+router.use('/suppliers', suppliersRouter);
+router.use('/stock', stockRouter);
 
 // rota raiz da API (opcional)
 router.get('/', (req, res) => {
