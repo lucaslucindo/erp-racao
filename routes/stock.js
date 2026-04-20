@@ -118,6 +118,34 @@
  *         description: Inventário
  */
 
+/**
+ * @swagger
+ * /stock/adjust:
+ *   post:
+ *     summary: Ajuste manual de estoque
+ *     tags: [Stock]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               product_id:
+ *                 type: integer
+ *               new_stock:
+ *                 type: integer
+ *               reason:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Ajuste aplicado
+ *       400:
+ *         description: Dados inválidos
+ */
+
 const express = require('express');
 const router = express.Router();
 const stockController = require('../controllers/stockController');
@@ -125,6 +153,7 @@ const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 
 router.post('/entries', ensureAuthenticated, stockController.createEntry);
 router.post('/exits', ensureAuthenticated, stockController.createExit);
+router.post('/adjust', ensureAuthenticated, stockController.adjustStock);
 router.get('/movements', ensureAuthenticated, stockController.getMovements);
 router.get('/inventory', ensureAuthenticated, stockController.getInventory);
 

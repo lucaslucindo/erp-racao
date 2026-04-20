@@ -69,9 +69,55 @@ async function getInventory(req, res) {
   }
 }
 
+async function adjustStock(req, res) {
+  try {
+    const { product_id, new_stock, reason } = req.body;
+    if (!product_id || new_stock === undefined) {
+      return res.status(400).json({ error: 'product_id e new_stock são obrigatórios' });
+    }
+
+    const conn = await pool.getConnection();
+    try {
+      await conn.beginTransaction();
+      const [prodRows] = await conn.query('SELECT stock FROM products WHERE id = ? FOR UPDATE', [product_id]);
+      if (prodRows.length === 0) throw new Error('Produto não encontrado');
+
+      const oldStock = prodRows[0].stock;
+      await conn.query('UPDATE products SET stock = ? WHERE id = ?', [new_stock, product_id]);
+
+      await conn.query(
+        'INSERT INTO stock_adjustments (product_id, old_stock, new_stock, reason, created_by) VALUES (?, ?, ?, ?, ?)',
+        [product_id, oldStock, new_stock, reason || null, req.user.id]
+      );
+
+      // também registrar em stock_movements
+      const diff = new_stock - oldStock;
+      if (diff !== 0) {
+        const type = diff > 0 ? 'entrada' : 'saida';
+        await conn.query(
+          'INSERT INTO stock_movements (product_id, type, quantity, reference_type, reference_id, partner_id, note) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [product_id, type, Math.abs(diff), 'adjustment', null, null, reason || null]
+        );
+      }
+
+      await conn.commit();
+      return res.status(201).json({ message: 'Ajuste aplicado', oldStock, newStock: new_stock });
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
+    }
+  } catch (err) {
+    console.error('adjustStock error:', err);
+    return res.status(500).json({ error: err.message || 'Erro ao ajustar estoque' });
+  }
+}
+
 module.exports = {
   createEntry,
   createExit,
   getMovements,
-  getInventory
+  getInventory,
+  adjustStock
 };
