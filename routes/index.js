@@ -38,6 +38,7 @@ const purchasesRouter = require('./purchases');
 const salesRouter = require('./sales');
 const cashRouter = require('./cash'); 
 const posRouter = require('./pos');
+const reportsRouter = require('./reports');
 
 // rotas agrupadas
 router.use('/users', usersRouter);
@@ -50,6 +51,7 @@ router.use('/purchases', purchasesRouter);
 router.use('/sales', salesRouter);
 router.use('/cash', cashRouter);
 router.use('/pos', posRouter);
+router.use('/reports', reportsRouter);
 
 // rota raiz da API (opcional)
 router.get('/', (req, res) => {
