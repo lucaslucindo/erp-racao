@@ -40,6 +40,10 @@ const cashRouter = require('./cash');
 const posRouter = require('./pos');
 const reportsRouter = require('./reports');
 const financeRouter = require('./finance');
+const fiscalRouter = require('./fiscal');
+const bankingRouter = require('./banking');
+const notificationsRouter = require('./notifications');
+const exportRouter = require('./export');
 
 // rotas agrupadas
 router.use('/users', usersRouter);
@@ -54,6 +58,10 @@ router.use('/cash', cashRouter);
 router.use('/pos', posRouter);
 router.use('/reports', reportsRouter);
 router.use('/finance', financeRouter);
+router.use('/fiscal', fiscalRouter);
+router.use('/banking', bankingRouter);
+router.use('/notifications', notificationsRouter);
+router.use('/export', exportRouter);
 
 // rota raiz da API (opcional)
 router.get('/', (req, res) => {
