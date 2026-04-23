@@ -45,6 +45,28 @@
  *         description: Token ausente ou inválido
  */
 
+/**
+ * @swagger
+ * /products:
+ *   get:
+ *     summary: Listar produtos com paginação
+ *     tags: [Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista paginada de produtos
+ */
+
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/productController');
