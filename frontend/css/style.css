@@ -1,3 +1,13 @@
 body {
   font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.card {
+  border-radius: 8px;
+}
+
+.alert {
+  padding: 8px;
+  margin-top: 10px;
 }
