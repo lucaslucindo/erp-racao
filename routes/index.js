@@ -46,6 +46,7 @@ const notificationsRouter = require('./notifications');
 const exportRouter = require('./export');
 const auditRouter = require('./audit');
 const biRouter = require('./bi');
+const automationRouter = require('./automation');
 
 // rotas agrupadas
 router.use('/users', usersRouter);
@@ -66,6 +67,7 @@ router.use('/notifications', notificationsRouter);
 router.use('/export', exportRouter);
 router.use('/audit', auditRouter);
 router.use('/bi', biRouter);
+router.use('/automation', automationRouter);
 
 // rota raiz da API (opcional)
 router.get('/', (req, res) => {
