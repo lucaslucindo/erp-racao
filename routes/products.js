@@ -67,16 +67,6 @@
  *         description: Lista paginada de produtos
  */
 
-// const express = require('express');
-// const router = express.Router();
-// const productController = require('../controllers/productController');
-// const { ensureAuthenticated } = require('../middlewares/authMiddleware');
-
-// router.get('/', ensureAuthenticated, productController.listProducts);
-// router.post('/', ensureAuthenticated, productController.createProduct);
-
-// module.exports = router;
-
 const express = require('express');
 const router = express.Router();
 const { pool } = require('../config/db');
@@ -109,12 +99,28 @@ router.post('/', async (req, res) => {
 // Atualizar produto
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
-  const { name, price, stock } = req.body;
+  const { name, category, cost, price, stock, min_stock } = req.body;
   try {
-    await pool.query('UPDATE products SET name=?, price=?, stock=? WHERE id=?', [name, price, stock, id]);
+    await pool.query(
+      'UPDATE products SET name=?, category=?, cost=?, price=?, stock=?, min_stock=? WHERE id=?',
+      [name, category, cost, price, stock, min_stock, id]
+    );
     res.json({ message: 'Produto atualizado com sucesso' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Erro ao atualizar produto' });
+  }
+});
+
+// Buscar produto por ID
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query('SELECT * FROM products WHERE id=?', [id]);
+    if (rows.length === 0) return res.status(404).json({ error: 'Produto não encontrado' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: 'Erro ao buscar produto' });
   }
 });
 
@@ -125,6 +131,7 @@ router.delete('/:id', async (req, res) => {
     await pool.query('DELETE FROM products WHERE id=?', [id]);
     res.json({ message: 'Produto deletado com sucesso' });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Erro ao deletar produto' });
   }
 });

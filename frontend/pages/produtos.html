@@ -80,6 +80,69 @@
     </div>
   </div>
 
+  <!-- Modal de edição de produto -->
+  <div class="modal fade" id="editarProdutoModal" tabindex="-1">
+    <div class="modal-dialog">
+      <form class="modal-content" id="editarProdutoForm">
+        <div class="modal-header"><h5 class="modal-title">Editar Produto</h5></div>
+        <div class="modal-body">
+          <input type="hidden" id="editId">
+          <div class="mb-3">
+            <label for="editNome" class="form-label">Nome</label>
+            <input type="text" class="form-control" id="editNome" required>
+          </div>
+          <div class="mb-3">
+            <label for="editCategoria" class="form-label">Categoria</label>
+            <input type="text" class="form-control" id="editCategoria" required>
+          </div>
+          <div class="mb-3">
+            <label for="editCusto" class="form-label">Custo</label>
+            <input type="number" class="form-control" id="editCusto" required>
+          </div>
+          <div class="mb-3">
+            <label for="editPreco" class="form-label">Preço</label>
+            <input type="number" class="form-control" id="editPreco" required>
+          </div>
+          <div class="mb-3">
+            <label for="editEstoque" class="form-label">Estoque</label>
+            <input type="number" class="form-control" id="editEstoque" required>
+          </div>
+          <div class="mb-3">
+            <label for="editMinStock" class="form-label">Estoque Mínimo</label>
+            <input type="number" class="form-control" id="editMinStock" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de exclusão de produto -->
+  <div class="modal fade" id="excluirProdutoModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header"><h5 class="modal-title">Excluir Produto</h5></div>
+        <div class="modal-body">
+          <p>Tem certeza que deseja excluir este produto?</p>
+          <input type="hidden" id="deleteId">
+          <p><strong id="deleteNome"></strong></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 1100">
+    <div id="toastContainer"></div>
+  </div>
+
   <script src="../js/produtos.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
