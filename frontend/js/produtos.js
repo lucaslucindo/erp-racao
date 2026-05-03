@@ -9,20 +9,28 @@ async function loadProdutos() {
 
   let totalEstoque = 0;
   
-  const produtos = data.products || data;
+  const produtos = data.products || data;  
 
   produtos.forEach(p => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${p.name}</td>
-        <td>${formatCurrency(p.price)}</td>
-        <td>${p.stock}</td>
-        <td>
-          <button class="btn btn-sm btn-warning" onclick="editarProduto(${p.id})">Editar</button>
-          <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id})">Excluir</button>
-        </td>
-      </tr>`;
-    totalEstoque += p.stock;
+  const alertaEstoque = p.stock < p.min_stock ? "table-danger" : "";
+  
+  tbody.innerHTML += `
+    <tr class="${alertaEstoque}">
+      <td>${p.name}</td>
+      <td>${formatCurrency(p.price)}</td>
+      <td>${p.stock}</td>
+      <td>
+        <button class="btn btn-sm btn-warning" onclick="editarProduto(${p.id})">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id})">Excluir</button>
+      </td>
+    </tr>`;
+  
+  totalEstoque += p.stock;
+
+  // Toast de aviso para estoque baixo
+  if (p.stock < p.min_stock) {
+      showToast(`Produto "${p.name}" está abaixo do estoque mínimo!`, "error");
+    }
   });
 
   const preco = parseFloat(document.querySelector("#preco").value.replace(/\./g, "").replace(",", "."));
@@ -237,4 +245,4 @@ function formatInputCurrency(input) {
 loadProdutos();
 
 // Atualização automática a cada 10 segundos
-setInterval(loadProdutos, 10000);
+// setInterval(loadProdutos, 10000);
