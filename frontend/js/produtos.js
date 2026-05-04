@@ -1,4 +1,5 @@
 const API_URL = "http://localhost:3000";
+let produtosCache = [];
 
 // Cadastro e carrega produtos
 async function loadProdutos() {
@@ -37,6 +38,7 @@ async function loadProdutos() {
   const custo = parseFloat(document.querySelector("#custo").value.replace(/\./g, "").replace(",", "."));
   
   renderProdutosChart(produtos);
+  produtosCache = produtos;
 }
 
 // Listener único para criar produto
@@ -287,54 +289,83 @@ document.getElementById("exportPdfBtn").addEventListener("click", async () => {
   doc.addImage(imgData, "PNG", 10, 40, 180, 100);
 
   // Lista de produtos e estoque
+  // let y = 150;
+  // doc.setFontSize(12);
+  // doc.text("Resumo de Estoque por Produto:", 10, y);
+  // y += 10;
+
+  // const tbody = document.querySelector("#produtosTable tbody");
+  // const rows = tbody.querySelectorAll("tr");
+  // rows.forEach(row => {
+  //   const cols = row.querySelectorAll("td");
+  //   const nome = cols[0].innerText;
+  //   const estoque = cols[2].innerText;
+  //   doc.text(`${nome} - Estoque: ${estoque}`, 10, y);
+  //   y += 8;
+  // });
+
+  // Lista de produtos e estoque detalhado
   let y = 150;
   doc.setFontSize(12);
   doc.text("Resumo de Estoque por Produto:", 10, y);
   y += 10;
 
-  const tbody = document.querySelector("#produtosTable tbody");
-  const rows = tbody.querySelectorAll("tr");
-  rows.forEach(row => {
-    const cols = row.querySelectorAll("td");
-    const nome = cols[0].innerText;
-    const estoque = cols[2].innerText;
-    doc.text(`${nome} - Estoque: ${estoque}`, 10, y);
+  produtosCache.forEach(p => {
+    doc.text(
+      `${p.name} | Categoria: ${p.category} | Preço: R$ ${p.price} | Custo: R$ ${p.cost} | Estoque: ${p.stock} | Mínimo: ${p.min_stock}`,
+      10,
+      y
+    );
     y += 8;
   });
 
-  // Salvar PDF
   doc.save("relatorio_estoque.pdf");
 });
 
 // Função de exportação em Excel (CSV)
+// document.getElementById("exportCsvBtn").addEventListener("click", () => {
+//   let csvContent = "data:text/csv;charset=utf-8,";
+
+//   // Cabeçalho
+//   csvContent += "Produto;Preço;Estoque\n";
+
+//   // Linhas da tabela
+//   const tbody = document.querySelector("#produtosTable tbody");
+//   const rows = tbody.querySelectorAll("tr");
+
+//   rows.forEach(row => {
+//     const cols = row.querySelectorAll("td");
+//     const nome = cols[0].innerText;
+//     const preco = cols[1].innerText.replace("R$ ", "").replace(",", ".");
+//     const estoque = cols[2].innerText;
+//     csvContent += `${nome};${preco};${estoque}\n`;
+//   });
+
+//   // Cria e baixa o arquivo
+//   const encodedUri = encodeURI(csvContent);
+//   const link = document.createElement("a");
+//   link.setAttribute("href", encodedUri);
+//   link.setAttribute("download", "estoque_produtos.csv");
+//   document.body.appendChild(link);
+//   link.click();
+//   document.body.removeChild(link);
+// });
+
 document.getElementById("exportCsvBtn").addEventListener("click", () => {
-  let csvContent = "data:text/csv;charset=utf-8,";
+  let csvContent = "\uFEFFProduto;Categoria;Preço;Custo;Estoque;Estoque Mínimo\n";
 
-  // Cabeçalho
-  csvContent += "Produto;Preço;Estoque\n";
-
-  // Linhas da tabela
-  const tbody = document.querySelector("#produtosTable tbody");
-  const rows = tbody.querySelectorAll("tr");
-
-  rows.forEach(row => {
-    const cols = row.querySelectorAll("td");
-    const nome = cols[0].innerText;
-    const preco = cols[1].innerText.replace("R$ ", "").replace(",", ".");
-    const estoque = cols[2].innerText;
-    csvContent += `${nome};${preco};${estoque}\n`;
+  produtosCache.forEach(p => {
+    csvContent += `${p.name};${p.category};${p.price};${p.cost};${p.stock};${p.min_stock}\n`;
   });
 
-  // Cria e baixa o arquivo
-  const encodedUri = encodeURI(csvContent);
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "estoque_produtos.csv");
+  link.href = URL.createObjectURL(blob);
+  link.download = "estoque_produtos.csv";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 });
-
 
 // Inicialização
 loadProdutos();
