@@ -1,5 +1,7 @@
 const API_URL = "http://localhost:3000";
 let produtosCache = [];
+let currentPage = 1;
+const itemsPerPage = 10;
 
 // Cadastro e carrega produtos
 async function loadProdutos() {
@@ -35,10 +37,12 @@ async function loadProdutos() {
   });
 
   const preco = parseFloat(document.querySelector("#preco").value.replace(/\./g, "").replace(",", "."));
-  const custo = parseFloat(document.querySelector("#custo").value.replace(/\./g, "").replace(",", "."));
-  
+  const custo = parseFloat(document.querySelector("#custo").value.replace(/\./g, "").replace(",", ".")); 
+
+  renderTable(produtos);
   renderProdutosChart(produtos);
   produtosCache = produtos;
+  populateCategories(produtosCache);  
 }
 
 // Listener único para criar produto
@@ -198,7 +202,6 @@ function showToast(message, type = "success") {
   const toast = new bootstrap.Toast(toastEl);
   toast.show();
 
-  // Remove o toast do DOM após desaparecer
   toastEl.addEventListener("hidden.bs.toast", () => toastEl.remove());
 }
 
@@ -286,23 +289,7 @@ document.getElementById("exportPdfBtn").addEventListener("click", async () => {
   // Captura do gráfico
   const canvas = await html2canvas(document.getElementById("estoqueProdutosChart"));
   const imgData = canvas.toDataURL("image/png");
-  doc.addImage(imgData, "PNG", 10, 40, 180, 100);
-
-  // Lista de produtos e estoque
-  // let y = 150;
-  // doc.setFontSize(12);
-  // doc.text("Resumo de Estoque por Produto:", 10, y);
-  // y += 10;
-
-  // const tbody = document.querySelector("#produtosTable tbody");
-  // const rows = tbody.querySelectorAll("tr");
-  // rows.forEach(row => {
-  //   const cols = row.querySelectorAll("td");
-  //   const nome = cols[0].innerText;
-  //   const estoque = cols[2].innerText;
-  //   doc.text(`${nome} - Estoque: ${estoque}`, 10, y);
-  //   y += 8;
-  // });
+  doc.addImage(imgData, "PNG", 10, 40, 180, 100);  
 
   // Lista de produtos e estoque detalhado
   let y = 150;
@@ -323,34 +310,6 @@ document.getElementById("exportPdfBtn").addEventListener("click", async () => {
 });
 
 // Função de exportação em Excel (CSV)
-// document.getElementById("exportCsvBtn").addEventListener("click", () => {
-//   let csvContent = "data:text/csv;charset=utf-8,";
-
-//   // Cabeçalho
-//   csvContent += "Produto;Preço;Estoque\n";
-
-//   // Linhas da tabela
-//   const tbody = document.querySelector("#produtosTable tbody");
-//   const rows = tbody.querySelectorAll("tr");
-
-//   rows.forEach(row => {
-//     const cols = row.querySelectorAll("td");
-//     const nome = cols[0].innerText;
-//     const preco = cols[1].innerText.replace("R$ ", "").replace(",", ".");
-//     const estoque = cols[2].innerText;
-//     csvContent += `${nome};${preco};${estoque}\n`;
-//   });
-
-//   // Cria e baixa o arquivo
-//   const encodedUri = encodeURI(csvContent);
-//   const link = document.createElement("a");
-//   link.setAttribute("href", encodedUri);
-//   link.setAttribute("download", "estoque_produtos.csv");
-//   document.body.appendChild(link);
-//   link.click();
-//   document.body.removeChild(link);
-// });
-
 document.getElementById("exportCsvBtn").addEventListener("click", () => {
   let csvContent = "\uFEFFProduto;Categoria;Preço;Custo;Estoque;Estoque Mínimo\n";
 
@@ -366,6 +325,101 @@ document.getElementById("exportCsvBtn").addEventListener("click", () => {
   link.click();
   document.body.removeChild(link);
 });
+
+// Categorias do filtro
+function populateCategories(produtos) {
+  const select = document.getElementById("categoryFilter");
+  const categorias = [...new Set(produtos.map(p => p.category))];
+  categorias.forEach(cat => {
+    const option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    select.appendChild(option);
+  });
+}
+
+// Função de filtros e busca
+function applyFilters() {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const category = document.getElementById("categoryFilter").value;
+  const criticalOnly = document.getElementById("criticalFilter").checked;
+
+  const filtered = produtosCache.filter(p => {
+    const matchName = p.name.toLowerCase().includes(search);
+    const matchCategory = !category || p.category === category;
+    const matchCritical = !criticalOnly || p.stock < p.min_stock;
+    return matchName && matchCategory && matchCritical;
+  });
+
+  const table = document.getElementById("produtosTable");
+  const noResultsMessage = document.getElementById("noResultsMessage");
+
+  if (filtered.length === 0) {
+    // Oculta tabela
+    table.style.display = "none";
+    noResultsMessage.style.display = "block";
+    noResultsMessage.textContent = "Produto não encontrado!";
+  } else {
+    // Exibe tabela novamente
+    table.style.display = "table";
+    noResultsMessage.style.display = "none";
+    renderTable(filtered);
+    renderProdutosChart(filtered);
+  }
+}
+
+// Eventos
+document.getElementById("searchBtn").addEventListener("click", applyFilters);
+document.getElementById("categoryFilter").addEventListener("change", applyFilters);
+document.getElementById("criticalFilter").addEventListener("change", applyFilters);
+
+// Renderização da tabela com paginação
+function renderTable(produtos) {
+  const tbody = document.querySelector("#produtosTable tbody");
+  tbody.innerHTML = "";
+
+  // Calcular intervalo da página
+  const start = (currentPage - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  const paginated = produtos.slice(start, end);
+
+  paginated.forEach(p => {
+    const alertaEstoque = p.stock < p.min_stock ? "table-danger" : "";
+    tbody.innerHTML += `
+      <tr class="${alertaEstoque}">
+        <td>${p.name}</td>
+        <td>${p.category}</td>
+        <td>${formatCurrency(p.price)}</td>
+        <td>${p.stock}</td>
+        <td>
+          <button class="btn btn-sm btn-warning" onclick="editarProduto(${p.id})">Editar</button>
+          <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id})">Excluir</button>
+        </td>
+      </tr>`;
+  });
+
+  renderPagination(produtos.length);
+}
+
+//botões de paginação
+function renderPagination(totalItems) {
+  const controls = document.getElementById("paginationControls");
+  controls.innerHTML = "";
+
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    btn.className = `btn btn-sm ${i === currentPage ? "btn-primary" : "btn-outline-primary"} me-1`;
+    btn.addEventListener("click", () => {
+      currentPage = i;
+      renderTable(produtosCache);
+      renderProdutosChart(produtosCache);
+    });
+    controls.appendChild(btn);
+  }
+}
 
 // Inicialização
 loadProdutos();
