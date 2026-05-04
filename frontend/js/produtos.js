@@ -35,10 +35,11 @@ async function loadProdutos() {
 
   const preco = parseFloat(document.querySelector("#preco").value.replace(/\./g, "").replace(",", "."));
   const custo = parseFloat(document.querySelector("#custo").value.replace(/\./g, "").replace(",", "."));
-
-  renderChart(totalEstoque);
+  
+  renderProdutosChart(produtos);
 }
 
+// Listener único para criar produto
 document.querySelector("#produtoForm").addEventListener("submit", async e => {
   e.preventDefault();
 
@@ -199,6 +200,7 @@ function showToast(message, type = "success") {
   toastEl.addEventListener("hidden.bs.toast", () => toastEl.remove());
 }
 
+// Formatação de moeda
 function formatCurrency(value) {
   if (!value) return "R$ 0,00";
   return Number(value).toLocaleString("pt-BR", {
@@ -207,6 +209,7 @@ function formatCurrency(value) {
   });
 }
 
+// Formatação de moeda no input
 function formatInputCurrency(input) {
   let raw = input.value.replace(/\./g, "").replace(",", ".");
   let numericValue = parseFloat(raw);
@@ -240,6 +243,98 @@ function formatInputCurrency(input) {
   document.querySelector("#editarProdutoModal").addEventListener("hidden.bs.modal", () => {
   document.querySelector("#editarProdutoForm").reset();
 });
+
+// Gráfico de estoque por produto
+function renderProdutosChart(produtos) {
+  const ctx = document.getElementById("estoqueProdutosChart").getContext("2d");
+
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: produtos.map(p => p.name),
+      datasets: [{
+        label: "Estoque",
+        data: produtos.map(p => p.stock),
+        backgroundColor: "#007bff"
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+// Função de exportação em PDF
+document.getElementById("exportPdfBtn").addEventListener("click", async () => {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  // Título
+  doc.setFontSize(16);
+  doc.text("Relatório de Estoque - Produtos", 10, 20);
+
+  // Data de geração
+  const dataAtual = new Date().toLocaleString("pt-BR");
+  doc.setFontSize(10);
+  doc.text(`Gerado em: ${dataAtual}`, 10, 28);
+
+  // Captura do gráfico
+  const canvas = await html2canvas(document.getElementById("estoqueProdutosChart"));
+  const imgData = canvas.toDataURL("image/png");
+  doc.addImage(imgData, "PNG", 10, 40, 180, 100);
+
+  // Lista de produtos e estoque
+  let y = 150;
+  doc.setFontSize(12);
+  doc.text("Resumo de Estoque por Produto:", 10, y);
+  y += 10;
+
+  const tbody = document.querySelector("#produtosTable tbody");
+  const rows = tbody.querySelectorAll("tr");
+  rows.forEach(row => {
+    const cols = row.querySelectorAll("td");
+    const nome = cols[0].innerText;
+    const estoque = cols[2].innerText;
+    doc.text(`${nome} - Estoque: ${estoque}`, 10, y);
+    y += 8;
+  });
+
+  // Salvar PDF
+  doc.save("relatorio_estoque.pdf");
+});
+
+// Função de exportação em Excel (CSV)
+document.getElementById("exportCsvBtn").addEventListener("click", () => {
+  let csvContent = "data:text/csv;charset=utf-8,";
+
+  // Cabeçalho
+  csvContent += "Produto;Preço;Estoque\n";
+
+  // Linhas da tabela
+  const tbody = document.querySelector("#produtosTable tbody");
+  const rows = tbody.querySelectorAll("tr");
+
+  rows.forEach(row => {
+    const cols = row.querySelectorAll("td");
+    const nome = cols[0].innerText;
+    const preco = cols[1].innerText.replace("R$ ", "").replace(",", ".");
+    const estoque = cols[2].innerText;
+    csvContent += `${nome};${preco};${estoque}\n`;
+  });
+
+  // Cria e baixa o arquivo
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "estoque_produtos.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+});
+
 
 // Inicialização
 loadProdutos();
