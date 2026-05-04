@@ -408,6 +408,20 @@ function renderPagination(totalItems) {
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "Anterior";
+  prevBtn.className = "btn btn-sm btn-outline-primary me-2";
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      renderTable(produtosCache);
+      renderProdutosChart(produtosCache);
+    }
+  });
+  controls.appendChild(prevBtn);
+
+  // Botões numerados
   for (let i = 1; i <= totalPages; i++) {
     const btn = document.createElement("button");
     btn.textContent = i;
@@ -419,6 +433,19 @@ function renderPagination(totalItems) {
     });
     controls.appendChild(btn);
   }
+
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "Próximo";
+  nextBtn.className = "btn btn-sm btn-outline-primary ms-2";
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.addEventListener("click", () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      renderTable(produtosCache);
+      renderProdutosChart(produtosCache);
+    }
+  });
+  controls.appendChild(nextBtn);
 }
 
 // Inicialização
