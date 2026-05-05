@@ -297,13 +297,11 @@ document.getElementById("exportPdfBtn").addEventListener("click", async () => {
   doc.text("Resumo de Estoque por Produto:", 10, y);
   y += 10;
 
-  produtosCache.forEach((p) => {
+  produtosCache.forEach(p => {
     doc.text(
-      `${p.name} | Categoria: ${p.category} | Preço: R$ ${p.price} | Custo: R$ ${p.cost} | ` +
-        `Estoque: ${p.stock} | Mínimo: ${p.min_stock} | ` +
-        `Entradas: ${p.entradas || 0} | Saídas: ${p.saidas || 0} | Ajustes: ${p.ajustes || 0}`,
+      `${p.name} | Categoria: ${p.category} | Preço: R$ ${p.price} | Custo: R$ ${p.cost} | Estoque: ${p.stock} | Mínimo: ${p.min_stock}`,
       10,
-      y,
+      y
     );
     y += 8;
   });
@@ -313,13 +311,10 @@ document.getElementById("exportPdfBtn").addEventListener("click", async () => {
 
 // Função de exportação em Excel (CSV)
 document.getElementById("exportCsvBtn").addEventListener("click", () => {
-  let csvContent =
-    "\uFEFFProduto;Categoria;Preço;Custo;Estoque;Estoque Mínimo;Entradas;Saídas;Ajustes\n";
+  let csvContent = "\uFEFFProduto;Categoria;Preço;Custo;Estoque;Estoque Mínimo\n";
 
-  produtosCache.forEach((p) => {
-    csvContent +=
-      `${p.name};${p.category};${p.price};${p.cost};${p.stock};${p.min_stock};` +
-      `${p.entradas || 0};${p.saidas || 0};${p.ajustes || 0}\n`;
+  produtosCache.forEach(p => {
+    csvContent += `${p.name};${p.category};${p.price};${p.cost};${p.stock};${p.min_stock}\n`;
   });
 
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });

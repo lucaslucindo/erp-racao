@@ -48,7 +48,6 @@ const auditRouter = require('./audit');
 const biRouter = require('./bi');
 const automationRouter = require('./automation');
 const aiRouter = require('./ai');
-const stockReportRoutes = require("./stockReportRoutes");
 
 // rotas agrupadas
 router.use('/users', usersRouter);
@@ -71,7 +70,6 @@ router.use('/audit', auditRouter);
 router.use('/bi', biRouter);
 router.use('/automation', automationRouter);
 router.use('/ai', aiRouter);
-router.use("/stock-report", stockReportRoutes);
 
 // rota raiz da API (opcional)
 router.get('/', (req, res) => {
