@@ -2,8 +2,11 @@
 const { pool } = require('../config/db');
 
 async function getAll() {
-  const [rows] = await pool.query('SELECT id, name, email, role, created_at FROM users ORDER BY id DESC');
-  return rows;
+  const [rows] = await pool.query(
+    "SELECT id, name, email, password, role FROM users WHERE email = ? LIMIT 1",
+    [email],
+  );
+  return rows[0];
 }
 
 async function create({ name, email, password, role = 'user' }) {
@@ -15,7 +18,10 @@ async function create({ name, email, password, role = 'user' }) {
 }
 
 async function findByEmail(email) {
-  const [rows] = await pool.query('SELECT * FROM users WHERE email = ? LIMIT 1', [email]);
+  const [rows] = await pool.query(
+    'SELECT id, name, email, password, role FROM users WHERE email = ? LIMIT 1',
+    [email]
+  );
   return rows[0];
 }
 

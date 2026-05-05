@@ -61,7 +61,14 @@ async function login(req, res) {
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
-    return res.json({ message: 'Autenticado com sucesso', token, user: payload });
+    // Retorna token + nome
+    return res.json({
+      message: 'Autenticado com sucesso',
+      token,
+      name: user.name,
+      email: user.email,
+      role: user.role
+    });
   } catch (err) {
     console.error('login error:', err);
     return res.status(500).json({ error: 'Erro ao autenticar' });

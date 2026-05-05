@@ -2,12 +2,18 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
-  const logoutBtn = document.getElementById('logoutBtn');
 
   // Proteção de rota: se não houver token, redireciona para login
   const token = localStorage.getItem('token');
   if (!token && window.location.pathname.includes('index.html')) {
     window.location.href = 'login.html';
+  }
+
+  // Exibir nome do usuário logado no menu de perfil
+  const userNameSpan = document.getElementById('userName');
+  const userName = localStorage.getItem('userName');
+  if (userName && userNameSpan) {
+    userNameSpan.textContent = userName;
   }
 
   // Função de login
@@ -25,14 +31,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const data = await res.json();
 
+        // if (res.ok) {
+        //   // Salva token e nome do usuário
+        //   localStorage.setItem('token', data.token);
+        //   localStorage.setItem('userName', data.name);
+
+        //   document.getElementById('loginMessage').innerHTML =
+        //     '<div class="alert alert-success">Login realizado com sucesso!</div>';
+        //   setTimeout(() => window.location.href = 'index.html', 1000);
+        // } 
         if (res.ok) {
-          localStorage.setItem('token', data.token);
-          document.getElementById('loginMessage').innerHTML =
-            '<div class="alert alert-success">Login realizado com sucesso!</div>';
-          setTimeout(() => window.location.href = 'index.html', 1000);
+         localStorage.setItem("token", data.token);
+         localStorage.setItem("userName", data.name); // salva o nome
+         document.getElementById("loginMessage").innerHTML =
+           '<div class="alert alert-success">Login realizado com sucesso!</div>';
+         setTimeout(() => (window.location.href = "index.html"), 1000);
         } else {
-          document.getElementById('loginMessage').innerHTML =
-            `<div class="alert alert-danger">${data.error || 'Erro no login'}</div>`;
+          document.getElementById("loginMessage").innerHTML =
+            `<div class="alert alert-danger">${data.error || "Erro no login"}</div>`;
         }
       } catch (err) {
         document.getElementById('loginMessage').innerHTML =
@@ -40,13 +56,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+});
 
-  // Função de logout
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      alert('Sessão encerrada com sucesso!');
-      window.location.href = 'login.html';
-    });
+// Função de logout
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userName');
+  alert('Sessão encerrada com sucesso!');
+  window.location.href = 'login.html';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const userNameSpan = document.getElementById('userName');
+  const userName = localStorage.getItem('userName');
+  if (userName && userNameSpan) {
+    userNameSpan.textContent = userName;
   }
 });
