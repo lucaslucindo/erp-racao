@@ -64,11 +64,23 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Função de logout
+// function logout() {
+//   localStorage.removeItem('token');
+//   localStorage.removeItem('userName');
+//   alert('Sessão encerrada com sucesso!');
+//   window.location.href = 'login.html';
+// }
 function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('userName');
   alert('Sessão encerrada com sucesso!');
-  window.location.href = 'login.html';
+  
+  // Se estiver em pages/, volta uma pasta
+  if (window.location.pathname.includes('/pages/')) {
+    window.location.href = '../login.html';
+  } else {
+    window.location.href = 'login.html';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
