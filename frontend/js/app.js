@@ -4,8 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
 
   // Proteção de rota: se não houver token, redireciona para login
+  // const token = localStorage.getItem('token');
+  // if (!token && window.location.pathname.includes('index.html')) {
+  //   window.location.href = 'login.html';
+  // }
+
   const token = localStorage.getItem('token');
-  if (!token && window.location.pathname.includes('index.html')) {
+  if (!token && !window.location.pathname.includes('login.html')) {
     window.location.href = 'login.html';
   }
 
