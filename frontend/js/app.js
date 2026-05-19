@@ -4,11 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginForm = document.getElementById('loginForm');
 
   // Proteção de rota: se não houver token, redireciona para login
-  // const token = localStorage.getItem('token');
-  // if (!token && window.location.pathname.includes('index.html')) {
-  //   window.location.href = 'login.html';
-  // }
-
   const token = localStorage.getItem('token');
   if (!token && !window.location.pathname.includes('login.html')) {
     window.location.href = 'login.html';
@@ -35,16 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-
-        // if (res.ok) {
-        //   // Salva token e nome do usuário
-        //   localStorage.setItem('token', data.token);
-        //   localStorage.setItem('userName', data.name);
-
-        //   document.getElementById('loginMessage').innerHTML =
-        //     '<div class="alert alert-success">Login realizado com sucesso!</div>';
-        //   setTimeout(() => window.location.href = 'index.html', 1000);
-        // } 
+        
         if (res.ok) {
          localStorage.setItem("token", data.token);
          localStorage.setItem("userName", data.name); // salva o nome
@@ -61,32 +47,35 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
+
+  // Listener para o botão de confirmação do modal de logout
+  setTimeout(() => {
+    const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+    if (confirmLogoutBtn) {
+      confirmLogoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+
+        // Fecha o modal
+        const modalElement = document.getElementById('logoutModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) modalInstance.hide();
+
+        // Redireciona para login
+        if (window.location.pathname.includes('/pages/')) {
+          window.location.href = '../login.html';
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+    }
+  }, 500); // espera navbar ser carregada
 });
 
-// Função de logout
-// function logout() {
-//   localStorage.removeItem('token');
-//   localStorage.removeItem('userName');
-//   alert('Sessão encerrada com sucesso!');
-//   window.location.href = 'login.html';
-// }
-function logout() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('userName');
-  alert('Sessão encerrada com sucesso!');
-  
-  // Se estiver em pages/, volta uma pasta
-  if (window.location.pathname.includes('/pages/')) {
-    window.location.href = '../login.html';
-  } else {
-    window.location.href = 'login.html';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const userNameSpan = document.getElementById('userName');
-  const userName = localStorage.getItem('userName');
-  if (userName && userNameSpan) {
-    userNameSpan.textContent = userName;
-  }
-});
+// document.addEventListener('DOMContentLoaded', () => {
+//   const userNameSpan = document.getElementById('userName');
+//   const userName = localStorage.getItem('userName');
+//   if (userName && userNameSpan) {
+//     userNameSpan.textContent = userName;
+//   }
+// });
