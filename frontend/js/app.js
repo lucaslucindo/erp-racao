@@ -48,6 +48,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Após navbar carregada via fetch, atualiza nome e ativa logout
+  const checkNavbarReady = setInterval(() => {
+    const userNameSpan = document.getElementById('userName');
+    const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+
+    if (userNameSpan) {
+      const userName = localStorage.getItem('userName');
+      if (userName) userNameSpan.textContent = userName;
+    }
+
+    if (confirmLogoutBtn) {
+      confirmLogoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userName');
+
+        const modalElement = document.getElementById('logoutModal');
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) modalInstance.hide();
+
+        // Redireciona para login
+        if (window.location.pathname.includes('/pages/')) {
+          window.location.href = '../login.html';
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+
+      clearInterval(checkNavbarReady); // para de checar depois que encontrou
+    }
+  }); // checa a cada 300ms até a navbar estar pronta
+
   // Listener para o botão de confirmação do modal de logout
   setTimeout(() => {
     const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
