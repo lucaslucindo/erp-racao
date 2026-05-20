@@ -86,16 +86,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Atualiza dados na página de Configurações
-  const configUserName = document.getElementById('configUserName');
-  const configUserEmail = document.getElementById('configUserEmail');
-  if (configUserName) {
-    const userName = localStorage.getItem('userName');
-    if (userName) configUserName.textContent = userName;
-  }
-  if (configUserEmail) {
-    const userEmail = localStorage.getItem('userEmail');
-    if (userEmail) configUserEmail.textContent = userEmail;
-  }
+  // const configUserName = document.getElementById('configUserName');
+  // const configUserEmail = document.getElementById('configUserEmail');
+  // if (configUserName) {
+  //   const userName = localStorage.getItem('userName');
+  //   if (userName) configUserName.textContent = userName;
+  // }
+  // if (configUserEmail) {
+  //   const userEmail = localStorage.getItem('userEmail');
+  //   if (userEmail) configUserEmail.textContent = userEmail;
+  // }
 
   // Listener para o botão de confirmação do modal de logout
   setTimeout(() => {
@@ -118,5 +118,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     }
-  }, 500); // espera navbar ser carregada
+  }, 500); // espera navbar ser carregada  
 });
