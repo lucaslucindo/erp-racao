@@ -30,13 +30,14 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({ email, password })
         });
         const data = await res.json();
-        
+
         if (res.ok) {
-         localStorage.setItem("token", data.token);
-         localStorage.setItem("userName", data.name); // salva o nome
-         document.getElementById("loginMessage").innerHTML =
-           '<div class="alert alert-success">Login realizado com sucesso!</div>';
-         setTimeout(() => (window.location.href = "index.html"), 1000);
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("userName", data.name);
+          localStorage.setItem("userEmail", data.email); // salva também o email
+          document.getElementById("loginMessage").innerHTML =
+            '<div class="alert alert-success">Login realizado com sucesso!</div>';
+          setTimeout(() => (window.location.href = "index.html"), 1000);
         } else {
           document.getElementById("loginMessage").innerHTML =
             `<div class="alert alert-danger">${data.error || "Erro no login"}</div>`;
@@ -48,36 +49,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Após navbar carregada via fetch, atualiza nome e ativa logout
-  const checkNavbarReady = setInterval(() => {
-    const userNameSpan = document.getElementById('userName');
-    const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+  // Após navbar carregada via fetch, atualiza nome e ativa nome logado e botão logout no menu de perfil  
+  const navbarContainer = document.getElementById('navbar');
+  if (navbarContainer) {
+    const observer = new MutationObserver(() => {
+      const userNameSpan = document.getElementById('userName');
+      const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
 
-    if (userNameSpan) {
-      const userName = localStorage.getItem('userName');
-      if (userName) userNameSpan.textContent = userName;
-    }
+      // Atualiza nome do usuário
+      if (userNameSpan) {
+        const userName = localStorage.getItem('userName');
+        if (userName) userNameSpan.textContent = userName;
+      }
 
-    if (confirmLogoutBtn) {
-      confirmLogoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userName');
+      // Listener do botão de logout
+      if (confirmLogoutBtn) {
+        confirmLogoutBtn.addEventListener('click', () => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userName');
+          localStorage.removeItem('userEmail');
 
-        const modalElement = document.getElementById('logoutModal');
-        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-        if (modalInstance) modalInstance.hide();
+          const modalElement = document.getElementById('logoutModal');
+          const modalInstance = bootstrap.Modal.getInstance(modalElement);
+          if (modalInstance) modalInstance.hide();
 
-        // Redireciona para login
-        if (window.location.pathname.includes('/pages/')) {
-          window.location.href = '../login.html';
-        } else {
-          window.location.href = 'login.html';
-        }
-      });
+          if (window.location.pathname.includes('/pages/')) {
+            window.location.href = '../login.html';
+          } else {
+            window.location.href = 'login.html';
+          }
+        });
+      }
+    });
 
-      clearInterval(checkNavbarReady); // para de checar depois que encontrou
-    }
-  }); // checa a cada 300ms até a navbar estar pronta
+    observer.observe(navbarContainer, { childList: true });
+  }
+
+  // Atualiza dados na página de Configurações
+  const configUserName = document.getElementById('configUserName');
+  const configUserEmail = document.getElementById('configUserEmail');
+  if (configUserName) {
+    const userName = localStorage.getItem('userName');
+    if (userName) configUserName.textContent = userName;
+  }
+  if (configUserEmail) {
+    const userEmail = localStorage.getItem('userEmail');
+    if (userEmail) configUserEmail.textContent = userEmail;
+  }
 
   // Listener para o botão de confirmação do modal de logout
   setTimeout(() => {
@@ -102,11 +120,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 500); // espera navbar ser carregada
 });
-
-// document.addEventListener('DOMContentLoaded', () => {
-//   const userNameSpan = document.getElementById('userName');
-//   const userName = localStorage.getItem('userName');
-//   if (userName && userNameSpan) {
-//     userNameSpan.textContent = userName;
-//   }
-// });
